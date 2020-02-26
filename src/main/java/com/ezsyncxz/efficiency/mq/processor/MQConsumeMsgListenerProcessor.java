@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
  */
 @Component
 public class MQConsumeMsgListenerProcessor implements MessageListenerConcurrently {
+
     private static final Logger logger = LoggerFactory.getLogger(MQConsumeMsgListenerProcessor.class);
 
     @Autowired

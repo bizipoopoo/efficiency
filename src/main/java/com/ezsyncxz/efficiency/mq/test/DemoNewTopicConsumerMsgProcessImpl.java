@@ -6,7 +6,7 @@ import com.ezsyncxz.efficiency.mq.entity.MQConsumeResult;
 import com.ezsyncxz.efficiency.mq.processor.AbstractMQMsgProcessor;
 import java.util.List;
 
-@MQConsumeService(topic="DemoTopic",tags={"*"})
+@MQConsumeService(topic="Demo",tags={"*"})
 public class DemoNewTopicConsumerMsgProcessImpl extends AbstractMQMsgProcessor {
 
     @Override
