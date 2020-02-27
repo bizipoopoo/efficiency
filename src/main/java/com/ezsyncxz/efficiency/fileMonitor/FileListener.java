@@ -4,12 +4,13 @@ import com.alibaba.rocketmq.client.exception.MQBrokerException;
 import com.alibaba.rocketmq.client.exception.MQClientException;
 import com.alibaba.rocketmq.remoting.exception.RemotingException;
 import com.ezsyncxz.efficiency.data.DataCollection;
-import com.ezsyncxz.efficiency.utils.ApplicationContextUtil;
+import com.ezsyncxz.efficiency.utils.ApplicationContextUtils;
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
+import java.io.IOException;
 
 public class FileListener implements FileAlterationListener {
 
@@ -41,13 +42,15 @@ public class FileListener implements FileAlterationListener {
     public void onFileCreate(File file) {
         logger.warn("监听到文件新建动作，启动同步任务，开始文件同步 文件名:{}", file.getName());
         try {
-            DataCollection dataCollection = ApplicationContextUtil.getBean(DataCollection.class);
+            DataCollection dataCollection = ApplicationContextUtils.getBean(DataCollection.class);
             dataCollection.collect(file.getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (MQClientException e) {
+            e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (RemotingException e) {
-            e.printStackTrace();
-        } catch (MQClientException e) {
             e.printStackTrace();
         } catch (MQBrokerException e) {
             e.printStackTrace();

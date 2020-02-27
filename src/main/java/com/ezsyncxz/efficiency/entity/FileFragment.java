@@ -23,11 +23,6 @@ public class FileFragment {
     private byte[] body;
 
     /**
-     * 消息总数
-     */
-    private int msgCount;
-
-    /**
      * 目标路径
      */
     private String tarPath;
@@ -43,17 +38,22 @@ public class FileFragment {
     private boolean needCompress = false;
 
     /**
-     * 分数
+     * 偏移量
      */
-    private double score;
+    private int off;
+
+    /**
+     * 文件大小
+     */
+    private long length;
 
     private FileFragment(Builder builder) {
         setBody(builder.body);
-        setMsgCount(builder.msgCount);
         setTarPath(builder.tarPath);
         setFilename(builder.filename);
         setNeedCompress(builder.needCompress);
-        setScore(builder.score);
+        setOff(builder.off);
+        setLength(builder.length);
     }
 
     public static Builder newBuilder() {
@@ -63,22 +63,17 @@ public class FileFragment {
 
     public static final class Builder {
         private byte[] body;
-        private int msgCount;
         private String tarPath;
         private String filename;
         private boolean needCompress;
-        private double score;
+        private int off;
+        private long length;
 
         private Builder() {
         }
 
         public Builder body(byte[] val) {
             body = val;
-            return this;
-        }
-
-        public Builder msgCount(int val) {
-            msgCount = val;
             return this;
         }
 
@@ -97,8 +92,13 @@ public class FileFragment {
             return this;
         }
 
-        public Builder score(double val) {
-            score = val;
+        public Builder off(int val) {
+            off = val;
+            return this;
+        }
+
+        public Builder length(long val) {
+            length = val;
             return this;
         }
 

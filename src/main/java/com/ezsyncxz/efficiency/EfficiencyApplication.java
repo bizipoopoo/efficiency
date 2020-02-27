@@ -2,7 +2,7 @@ package com.ezsyncxz.efficiency;
 
 import com.ezsyncxz.efficiency.fileMonitor.FileListener;
 import com.ezsyncxz.efficiency.fileMonitor.FileMonitor;
-import com.ezsyncxz.efficiency.utils.ApplicationContextUtil;
+import com.ezsyncxz.efficiency.utils.ApplicationContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -16,7 +16,7 @@ public class EfficiencyApplication {
 
     public static void main(String[] args) {
         ApplicationContext ctx = SpringApplication.run(EfficiencyApplication.class, args);
-        ApplicationContextUtil.setApplicationContext(ctx);
+        ApplicationContextUtils.setApplicationContext(ctx);
         String monitorDirectory = "D:\\chenwj\\dev\\test\\efficiency_src";
         logger.warn("启动文件夹监控，正在监听{}", monitorDirectory);
         try {
