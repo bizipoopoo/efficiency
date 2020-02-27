@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -64,11 +66,13 @@ class EfficiencyApplicationTests {
         String path = "D:\\chenwj\\dev\\test\\efficiency_src\\mysql-connector-java-5.1.7-bin.zip";
         try {
             dataCollection.collect(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (MQClientException e) {
+            e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (RemotingException e) {
-            e.printStackTrace();
-        } catch (MQClientException e) {
             e.printStackTrace();
         } catch (MQBrokerException e) {
             e.printStackTrace();
