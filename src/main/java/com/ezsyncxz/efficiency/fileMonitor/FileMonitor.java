@@ -26,10 +26,4 @@ public class FileMonitor {
     public void start() throws Exception {
         monitor.start();
     }
-
-    public static void main(String[] args) throws Exception {
-        FileMonitor m = new FileMonitor(5000);
-        m.monitor("D:\\temp", new FileListener());
-        m.start();
-    }
 }

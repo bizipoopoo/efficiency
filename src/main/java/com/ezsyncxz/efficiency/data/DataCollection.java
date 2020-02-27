@@ -1,7 +1,6 @@
 package com.ezsyncxz.efficiency.data;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.rocketmq.client.exception.MQBrokerException;
 import com.alibaba.rocketmq.client.exception.MQClientException;
 import com.alibaba.rocketmq.client.producer.DefaultMQProducer;
@@ -26,7 +25,6 @@ import java.io.IOException;
  * @Date 2020/2/24 15:46
  * @Version 1.0
  **/
-
 @Component
 public class DataCollection {
 
@@ -54,17 +52,17 @@ public class DataCollection {
         }
 
         boolean needCompress = false;
-        // 如果是文件夹，则进行文件压缩
-        if(file.isDirectory()) {
-            String zipPath = src.substring(0, src.lastIndexOf(File.separator)) + src.substring(src.lastIndexOf(File.separator) + 1, src.lastIndexOf("."));
-            try {
-                CompressUtils.writeByApacheZipOutputStream(src, zipPath, "采集程序自动压缩，读取后会自动删除");
-                src = zipPath;
-                needCompress = true;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+//        // 如果是文件夹，则进行文件压缩
+//        if(file.isDirectory()) {
+//            String zipPath = src.substring(0, src.lastIndexOf(File.separator)) + src.substring(src.lastIndexOf(File.separator) + 1, src.lastIndexOf("."));
+//            try {
+//                CompressUtils.writeByApacheZipOutputStream(src, zipPath, "采集程序自动压缩，读取后会自动删除");
+//                src = zipPath;
+//                needCompress = true;
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
 
         // 读取文件为字节数组
         byte[] message = FileUtils.File2byte(src);
@@ -117,10 +115,10 @@ public class DataCollection {
 //            logger.warn("发送的消息id为:{}", orderID);
         }
 
-        // 如果是文件夹，可以删除压缩后的文件
-        if(needCompress) {
-
-        }
+//        // 如果是文件夹，可以删除压缩后的文件
+//        if(needCompress) {
+//
+//        }
 
         logger.warn("消息传输完毕 消息总大小:{}字节 消息总数:{} 消息哈希：{} 消息目标路径: {}", msgTotalSize, msgCount, tag, tar + filename);
 
