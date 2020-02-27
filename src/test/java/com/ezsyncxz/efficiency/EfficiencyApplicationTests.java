@@ -8,14 +8,16 @@ import com.alibaba.rocketmq.common.message.Message;
 import com.alibaba.rocketmq.remoting.exception.RemotingException;
 import com.ezsyncxz.efficiency.data.DataCollection;
 import com.ezsyncxz.efficiency.redis.RedisUtil;
+import org.apache.commons.io.monitor.FileAlterationMonitor;
+import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
 class EfficiencyApplicationTests {
@@ -62,7 +64,7 @@ class EfficiencyApplicationTests {
 
     @Test
     public void testOrderlyMsg(){
-        String path = "D:\\chenwj\\dev\\test\\efficiency_src\\java-client-0.1.2.zip";
+        String path = "D:\\chenwj\\dev\\test\\efficiency_src\\mysql-connector-java-5.1.7-bin.zip";
         try {
             dataCollection.collect(path);
         } catch (InterruptedException e) {
@@ -80,12 +82,17 @@ class EfficiencyApplicationTests {
     @Test
     public void testZsGet(){
         redisUtil.zsSetAndSorte("demo", "b", 2.0);
-        redisUtil.zsSetAndSorte("demo", "a", 1.0);
+        redisUtil.zsSetAndSorte("demo", "a", 2.0);
         redisUtil.zsSetAndSorte("demo", "c", 3.0);
         Set<Object> demo = redisUtil.zsGetDesc("demo");
         Iterator<Object> iterator = demo.iterator();
         while (iterator.hasNext()){
             System.out.println((String) iterator.next());
         }
+    }
+
+    @Test
+    public void testFileMonitor(){
+
     }
 }

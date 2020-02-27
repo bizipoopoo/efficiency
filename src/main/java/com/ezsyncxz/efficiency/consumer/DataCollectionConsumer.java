@@ -1,13 +1,17 @@
 package com.ezsyncxz.efficiency.consumer;
 
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.rocketmq.common.message.MessageExt;
+import com.ezsyncxz.efficiency.entity.FileFragment;
 import com.ezsyncxz.efficiency.mq.annotation.MQConsumeService;
 import com.ezsyncxz.efficiency.mq.entity.MQConsumeResult;
 import com.ezsyncxz.efficiency.mq.processor.AbstractMQMsgProcessor;
+import com.ezsyncxz.efficiency.redis.RedisUtil;
 import com.ezsyncxz.efficiency.utils.ByteUtils;
 import com.ezsyncxz.efficiency.utils.FileUtils;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @ClassName DataCollectionConsumer
@@ -20,21 +24,41 @@ import java.util.List;
 @MQConsumeService(topic = "DemoTopic", tags = {"*"})
 public class DataCollectionConsumer extends AbstractMQMsgProcessor {
 
+    @Autowired
+    private RedisUtil redisUtil;
 
     @Override
     protected MQConsumeResult consumeMessage(String tag, List<String> keys, MessageExt messageExt) {
-        byte[] body = messageExt.getBody();
-        String common = new String(body);
-        byte[] message = new byte[0];
-        // 没有读到终止符就继续读取
-        while (!common.equals("EOF")) {
-            message = ByteUtils.concateBytes(message, body);
-        }
+//        logger.warn("{}接收到来自{}的消息，开始处理...", Thread.currentThread().getName(), tag);
+        try {
+            byte[] body = messageExt.getBody();
+            String bodyString = new String(body);
+            FileFragment fileFragment = JSONObject.parseObject(bodyString, FileFragment.class);
+//            logger.warn("接收到消息 消息编号:{}", fileFragment.getScore());
+            redisUtil.zsSetAndSorte(tag, bodyString, fileFragment.getScore());
+//            logger.warn("消息已写入缓存!");
 
-        // 读取完毕，写入磁盘
-        FileUtils.byte2File(body, "D:\\chenwj\\dev\\test\\efficiency_tar", "java-client-0.1.2.zip");
-        MQConsumeResult result = new MQConsumeResult();
-        result.setSuccess(true);
-        return result;
+            // 当文件的所有片段读完，开始写入磁盘
+//            logger.warn("当前消息总数为:{}, 传过来的消息总数为:{}", size, fileFragment.getMsgCount());
+            byte[] fileBody = new byte[0];
+            long size = redisUtil.zsGetSize(tag);
+            if (size == fileFragment.getMsgCount()) {
+                Set<Object> objects = redisUtil.zsGetAsc(tag);
+                for (Object object : objects) {
+                    String fragmentString = (String) object;
+                    FileFragment fragment = JSONObject.parseObject(fragmentString, FileFragment.class);
+                    fileBody = ByteUtils.concateBytes(fileBody, fragment.getBody());
+                }
+                FileUtils.byte2File(fileBody, fileFragment.getTarPath(), fileFragment.getFilename());
+                redisUtil.del(tag);
+                logger.warn("文件写入完毕!已删除缓存 文件路径:{}", fileFragment.getTarPath() + fileFragment.getFilename());
+            }
+            return MQConsumeResult.newBuilder().isSuccess(true).build();
+        }catch (Exception e) {
+            logger.warn("文件写入异常，删除缓存");
+            e.printStackTrace();
+            redisUtil.del(tag);
+        }
+        return MQConsumeResult.newBuilder().isSuccess(true).build();
     }
 }

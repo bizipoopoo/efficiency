@@ -15,6 +15,7 @@ public final class RedisUtil {
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
+
     // =============================common============================
 
     /**
@@ -426,6 +427,15 @@ public final class RedisUtil {
      */
     public Set<Object> zsGetDesc(String key) {
         return redisTemplate.opsForZSet().reverseRange(key, 0, -1);
+    }
+
+    /**
+     * 获取有序集合的元素个数
+     * @param key
+     * @return
+     */
+    public long zsGetSize(String key) {
+        return redisTemplate.opsForZSet().size(key);
     }
     // ===============================list=================================
 
