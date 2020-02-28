@@ -7,6 +7,7 @@ import com.alibaba.rocketmq.client.producer.DefaultMQProducer;
 import com.alibaba.rocketmq.common.message.Message;
 import com.alibaba.rocketmq.remoting.exception.RemotingException;
 import com.ezsyncxz.efficiency.entity.FileFragment;
+import com.ezsyncxz.efficiency.utils.ByteUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.UUID;
 
 /**
  * @ClassName DataCollection
@@ -122,12 +124,21 @@ public class DataCollection {
 //        logger.warn("消息传输完毕 消息总大小:{}字节 消息总数:{} 消息哈希：{} 消息目标路径: {}", msgTotalSize, msgCount, tag, tar + filename);
 
         // 用文件随机读写的方式读取文件片段
-        int len = 2048; // 每个消息文件片段的大小
+        int len = 3000000; // 每个消息文件片段的大小
         int off = 0; // 每个消息片段的偏移量
-        byte[] bytes = new byte[len]; // 2M的缓冲接收文件
+        byte[] bytes = new byte[len]; // 缓冲接收文件
         long length = file.length(); // 文件大小
         RandomAccessFile r = new RandomAccessFile(src, "r");
-        while (r.read(bytes) > 0) {
+        int rLen = 0; // 每次读取的字节数
+        String tag = UUID.randomUUID().toString();
+        long startTime = System.currentTimeMillis();
+        while ((rLen = r.read(bytes)) > 0) {
+
+            if(rLen != bytes.length) {
+                bytes = ByteUtils.subBytes(bytes, 0, rLen);
+                logger.warn("最后一个文件不足{}B", len);
+            }
+
             FileFragment fileFragment = FileFragment.newBuilder()
                     .filename(filename)
                     .tarPath(tar)
@@ -135,11 +146,17 @@ public class DataCollection {
                     .needCompress(false)
                     .length(length)
                     .off(off)
+                    .startTime(startTime)
                     .build();
 
-            Message sendMessage = new Message("DemoTopic", "demo", JSONObject.toJSONString(fileFragment).getBytes());
+            Message sendMessage = new Message("DemoTopic", tag, JSONObject.toJSONString(fileFragment).getBytes());
             producer.send(sendMessage);
+            off += rLen;
         }
         r.close();
+    }
+
+    public static void main(String[] args){
+
     }
 }

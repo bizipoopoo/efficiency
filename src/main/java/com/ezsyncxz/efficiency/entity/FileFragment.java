@@ -47,6 +47,11 @@ public class FileFragment {
      */
     private long length;
 
+    /**
+     * 开始传输的时间戳
+     */
+    private long startTime;
+
     private FileFragment(Builder builder) {
         setBody(builder.body);
         setTarPath(builder.tarPath);
@@ -54,6 +59,7 @@ public class FileFragment {
         setNeedCompress(builder.needCompress);
         setOff(builder.off);
         setLength(builder.length);
+        setStartTime(builder.startTime);
     }
 
     public static Builder newBuilder() {
@@ -68,6 +74,7 @@ public class FileFragment {
         private boolean needCompress;
         private int off;
         private long length;
+        private long startTime;
 
         private Builder() {
         }
@@ -99,6 +106,11 @@ public class FileFragment {
 
         public Builder length(long val) {
             length = val;
+            return this;
+        }
+
+        public Builder startTime(long val) {
+            startTime = val;
             return this;
         }
 

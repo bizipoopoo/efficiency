@@ -9,10 +9,7 @@ import com.ezsyncxz.efficiency.mq.processor.AbstractMQMsgProcessor;
 import com.ezsyncxz.efficiency.redis.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.util.List;
 
 /**
@@ -70,26 +67,29 @@ public class DataCollectionConsumer extends AbstractMQMsgProcessor {
         String filename = fileFragment.getFilename();
         String path = tarPath + File.separator + filename;
         File file = new File(path);
-        if(!file.exists()){
+        if (!file.exists()) {
             try {
                 file.createNewFile();
+                logger.warn("创建新文件 文件名: {}", file.getName());
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
         try {
-            RandomAccessFile w = new RandomAccessFile(path, "w");
-            w.write(fileFragment.getBody(), fileFragment.getOff(), fileFragment.getBody().length);
+            RandomAccessFile w = new RandomAccessFile(path, "rw");
+            w.seek(fileFragment.getOff());
+            w.write(fileFragment.getBody());
             logger.warn("写入文件片段 文件名:{} 偏移量：{}", filename, fileFragment.getOff());
             w.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        if(file.length() == fileFragment.getLength()) {
-            logger.warn("文件写入完毕 文件:{}", tarPath + File.separator + filename);
+        long incr = redisUtil.incr(tag, fileFragment.getBody().length);
+        if(incr == fileFragment.getLength()) {
+            long endTime = System.currentTimeMillis();
+            logger.warn("文件写入完毕 总耗时:{}ms 文件:{}", endTime - fileFragment.getStartTime(), tarPath + File.separator + filename);
+            redisUtil.del(tag);
         }
         return MQConsumeResult.newBuilder().isSuccess(true).build();
     }
