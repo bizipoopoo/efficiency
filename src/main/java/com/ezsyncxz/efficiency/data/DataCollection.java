@@ -1,22 +1,17 @@
 package com.ezsyncxz.efficiency.data;
 
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.rocketmq.client.exception.MQBrokerException;
 import com.alibaba.rocketmq.client.exception.MQClientException;
 import com.alibaba.rocketmq.client.producer.DefaultMQProducer;
-import com.alibaba.rocketmq.common.message.Message;
 import com.alibaba.rocketmq.remoting.exception.RemotingException;
-import com.ezsyncxz.efficiency.entity.FileFragment;
 import com.ezsyncxz.efficiency.utils.ByteUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.util.UUID;
+import java.io.*;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 
 /**
  * @ClassName DataCollection
@@ -123,40 +118,88 @@ public class DataCollection {
 //
 //        logger.warn("消息传输完毕 消息总大小:{}字节 消息总数:{} 消息哈希：{} 消息目标路径: {}", msgTotalSize, msgCount, tag, tar + filename);
 
-        // 用文件随机读写的方式读取文件片段
-        int len = 3000000; // 每个消息文件片段的大小
-        int off = 0; // 每个消息片段的偏移量
-        byte[] bytes = new byte[len]; // 缓冲接收文件
-        long length = file.length(); // 文件大小
-        RandomAccessFile r = new RandomAccessFile(src, "r");
-        int rLen = 0; // 每次读取的字节数
-        String tag = UUID.randomUUID().toString();
-        long startTime = System.currentTimeMillis();
-        while ((rLen = r.read(bytes)) > 0) {
 
-            if(rLen != bytes.length) {
-                bytes = ByteUtils.subBytes(bytes, 0, rLen);
-                logger.warn("最后一个文件不足{}B", len);
+
+//        // 用文件随机读写的方式读取文件片段
+//        int len = 3000000; // 每个消息文件片段的大小
+//        int off = 0; // 每个消息片段的偏移量
+//        byte[] bytes = new byte[len]; // 缓冲接收文件
+//        long length = file.length(); // 文件大小
+//        RandomAccessFile r = new RandomAccessFile(src, "r");
+//        int rLen = 0; // 每次读取的字节数
+//        String tag = UUID.randomUUID().toString();
+//        long startTime = System.currentTimeMillis();
+//        while ((rLen = r.read(bytes)) > 0) {
+//
+//            if(rLen != bytes.length) {
+//                bytes = ByteUtils.subBytes(bytes, 0, rLen);
+//                logger.warn("最后一个文件不足{}B", len);
+//            }
+//
+//            FileFragment fileFragment = FileFragment.newBuilder()
+//                    .filename(filename)
+//                    .tarPath(tar)
+//                    .body(bytes)
+//                    .needCompress(false)
+//                    .length(length)
+//                    .off(off)
+//                    .startTime(startTime)
+//                    .build();
+//
+//            Message sendMessage = new Message("DemoTopic", tag, JSONObject.toJSONString(fileFragment).getBytes());
+//            producer.send(sendMessage);
+//            off += rLen;
+//        }
+//        r.close();
+
+        RandomAccessFile accessFile = new RandomAccessFile(src, "r");
+        int length = 0;
+        double sumL = 0 ;
+        byte[] sendBytes = null;
+        Socket socket = null;
+        DataOutputStream dos = null;
+        boolean bool = false;
+        try {
+            long l = file.length();
+            socket = new Socket();
+            socket.connect(new InetSocketAddress("127.0.0.1", 48123));
+            dos = new DataOutputStream(socket.getOutputStream());
+            sendBytes = new byte[1024];
+
+            //传输文件路径,前4个字节是长度
+            String fileName = file.getName();
+            String filePath = tar + File.separator + fileName;
+            int len = filePath.getBytes().length;
+            byte[] lenBytes = ByteUtils.intToByteArray(len);
+            byte[] bytes = ByteUtils.concateBytes(lenBytes, filePath.getBytes());
+            dos.write(bytes);
+            dos.flush();
+
+            // 传输文件内容
+            while (accessFile.read(sendBytes) > 0) {
+                sumL += length;
+                logger.warn("已传输:{}", ((sumL/l)*100)+"%");
+                dos.write(sendBytes, 0, length);
+                dos.flush();
             }
-
-            FileFragment fileFragment = FileFragment.newBuilder()
-                    .filename(filename)
-                    .tarPath(tar)
-                    .body(bytes)
-                    .needCompress(false)
-                    .length(length)
-                    .off(off)
-                    .startTime(startTime)
-                    .build();
-
-            Message sendMessage = new Message("DemoTopic", tag, JSONObject.toJSONString(fileFragment).getBytes());
-            producer.send(sendMessage);
-            off += rLen;
+            //虽然数据类型不同，但JAVA会自动转换成相同数据类型后在做比较
+            if(sumL==l){
+                bool = true;
+            }
+        }catch (Exception e) {
+            System.out.println("客户端文件传输异常");
+            bool = false;
+            e.printStackTrace();
+        } finally{
+            if (dos != null)
+                dos.close();
+            if (socket != null)
+                socket.close();
         }
-        r.close();
-    }
-
-    public static void main(String[] args){
-
+        if(bool) {
+            logger.warn("传输完毕！");
+        } else {
+            logger.warn("文件传输失败！");
+        }
     }
 }
