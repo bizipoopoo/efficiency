@@ -176,7 +176,7 @@ public class DataCollection {
             dos.flush();
 
             // 传输文件内容
-            while (accessFile.read(sendBytes) > 0) {
+            while ((length = accessFile.read(sendBytes)) > 0) {
                 sumL += length;
                 logger.warn("已传输:{}", ((sumL/l)*100)+"%");
                 dos.write(sendBytes, 0, length);

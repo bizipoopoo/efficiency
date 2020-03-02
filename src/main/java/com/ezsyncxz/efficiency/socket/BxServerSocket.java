@@ -74,7 +74,7 @@ public class BxServerSocket {
 				fos = new FileOutputStream(new File(filePath));
 				inputByte = new byte[1024];   
 				System.out.println("开始接收数据...");  
-				while ((length = dis.read(inputByte, 0, inputByte.length)) > 0) {
+				while ((length = dis.read(inputByte)) > 0) {
 					fos.write(inputByte, 0, length);
 					fos.flush();    
 				}
