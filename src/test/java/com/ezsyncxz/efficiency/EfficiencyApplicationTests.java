@@ -6,7 +6,7 @@ import com.alibaba.rocketmq.client.producer.DefaultMQProducer;
 import com.alibaba.rocketmq.client.producer.SendResult;
 import com.alibaba.rocketmq.common.message.Message;
 import com.alibaba.rocketmq.remoting.exception.RemotingException;
-import com.ezsyncxz.efficiency.data.DataCollection;
+import com.ezsyncxz.efficiency.data.AllDataCollection;
 import com.ezsyncxz.efficiency.redis.RedisUtil;
 import com.ezsyncxz.efficiency.utils.FileUtils;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ class EfficiencyApplicationTests {
     private DefaultMQProducer defaultMQProducer;
 
     @Autowired
-    private DataCollection dataCollection;
+    private AllDataCollection allDataCollection;
 
     @Autowired
     private RedisUtil redisUtil;
@@ -70,7 +70,7 @@ class EfficiencyApplicationTests {
     public void testOrderlyMsg() {
         String path = "D:\\chenwj\\dev\\test\\efficiency_src\\mysql-connector-java-5.1.7-bin.zip";
         try {
-            dataCollection.collect(path);
+            allDataCollection.collect(path);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (MQClientException e) {

@@ -3,7 +3,7 @@ package com.ezsyncxz.efficiency.fileMonitor;
 import com.alibaba.rocketmq.client.exception.MQBrokerException;
 import com.alibaba.rocketmq.client.exception.MQClientException;
 import com.alibaba.rocketmq.remoting.exception.RemotingException;
-import com.ezsyncxz.efficiency.data.DataCollection;
+import com.ezsyncxz.efficiency.data.AllDataCollection;
 import com.ezsyncxz.efficiency.utils.ApplicationContextUtils;
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationObserver;
@@ -42,8 +42,8 @@ public class FileListener implements FileAlterationListener {
     public void onFileCreate(File file) {
         logger.warn("监听到文件新建动作，启动同步任务，开始文件同步 文件名:{}", file.getName());
         try {
-            DataCollection dataCollection = ApplicationContextUtils.getBean(DataCollection.class);
-            dataCollection.collect(file.getAbsolutePath());
+            AllDataCollection allDataCollection = ApplicationContextUtils.getBean(AllDataCollection.class);
+            allDataCollection.collect(file.getAbsolutePath());
         } catch (IOException e) {
             e.printStackTrace();
         } catch (MQClientException e) {

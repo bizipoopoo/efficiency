@@ -10,6 +10,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+
 /**
  * redis配置类
  */
@@ -36,5 +40,22 @@ public class RedisConfig {
         template.setHashValueSerializer(jackson2JsonRedisSerializer);
         template.afterPropertiesSet();
         return template;
+    }
+
+    public static void main(String[] args) throws IOException {
+        long start = System.currentTimeMillis();
+        String src = "D:\\chenwj\\dev\\test\\efficiency_src\\ideaIU-2019.3.1.exe";
+        String tar = "D:\\chenwj\\dev\\test\\efficiency_tar\\ideaIU-2019.3.1.exe";
+        RandomAccessFile srcFile = new RandomAccessFile(src, "r");
+
+        byte[] bytes = new byte[3000000];
+        while (srcFile.read(bytes) > 0) {
+            RandomAccessFile tarFile = new RandomAccessFile(tar, "rw");
+            tarFile.write(bytes);
+            tarFile.close();
+        }
+        srcFile.close();
+        long end = System.currentTimeMillis();
+        System.out.println("时间差 : " + (end - start));
     }
 }

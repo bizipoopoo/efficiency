@@ -39,4 +39,10 @@ public class ByteUtils {
                 (byte) (a & 0xFF)
         };
     }
+
+    public static byte[] put(byte[] bytes, byte x) {
+        byte[] tempbytes = new byte[1];
+        tempbytes[0] = x;
+        return concateBytes(bytes, tempbytes);
+    }
 }

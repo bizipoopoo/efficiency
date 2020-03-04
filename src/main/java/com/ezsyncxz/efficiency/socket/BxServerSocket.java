@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.UUID;
 
 
 /**
@@ -63,9 +62,6 @@ public class BxServerSocket {
 		try {
 			try {
 				dis = new DataInputStream(socket.getInputStream());
-				/*
-				 * 文件存储位置  
-				 */
 				int len = dis.readInt();
 				byte[] bytes = new byte[len];
 				dis.read(bytes);
@@ -90,6 +86,14 @@ public class BxServerSocket {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static void write(byte[] data, String path){
+
+	}
+
+	public static byte[] getCheckSUm(String path){
+		return new byte[0];
 	}
 
 }

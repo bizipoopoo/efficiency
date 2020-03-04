@@ -1,5 +1,7 @@
 package com.ezsyncxz.efficiency.entity;
 
+import com.ezsyncxz.efficiency.rsync.Rsync;
+import com.sun.corba.se.impl.orbutil.concurrent.Sync;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -117,5 +119,18 @@ public class FileFragment {
         public FileFragment build() {
             return new FileFragment(this);
         }
+    }
+
+    public static void main(String[] args) {
+        String b1024 = "abcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefgh";
+        String c1024 = "bcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefgha";
+
+        int i = Rsync.adler32(b1024.getBytes());
+        int i1 = Rsync.nextAdler32(i, (byte)'a', (byte)'a');
+        int i2 = Rsync.adler32(c1024.getBytes());
+        System.out.println(i);
+        System.out.println(i1);
+        System.out.println(i2);
+
     }
 }

@@ -15,15 +15,15 @@ import java.net.Socket;
 
 /**
  * @ClassName DataCollection
- * @Description 采集指定文件夹数据，将数据读取，归档，分块写入消息队列中，rocketMq能够存入的消息大小最大为4MB，因此我们需要对过大的数据进行切割
+ * @Description 全量数据同步
  * @Author chenwj
  * @Date 2020/2/24 15:46
  * @Version 1.0
  **/
 @Component
-public class DataCollection {
+public class AllDataCollection {
 
-    private static final Logger logger = LoggerFactory.getLogger(DataCollection.class);
+    private static final Logger logger = LoggerFactory.getLogger(AllDataCollection.class);
 
     @Autowired
     private DefaultMQProducer producer;
